@@ -87,8 +87,6 @@ https://rotalivre-ia-api.onrender.com
 
 ### Verificação da API
 
-Os seguintes endereços podem ser utilizados para verificar a disponibilidade da aplicação:
-
 - [Status da API](https://rotalivre-ia-api.onrender.com/health)
 - [Modelos disponíveis](https://rotalivre-ia-api.onrender.com/api/modelos)
 
@@ -129,7 +127,7 @@ Os seguintes endereços podem ser utilizados para verificar a disponibilidade da
 
 ```json
 {
-  "mensagem": "Identifique a região deste local"
+  "mensagem": "Quero fazer um agrupamento geografico"
 }
 ```
 
@@ -139,6 +137,17 @@ O chatbot pode conduzir conversas interativas em dois fluxos:
 - **Agrupamento:** solicita latitude e longitude para executar o KMeans.
 
 Nas etapas seguintes de uma conversa, deve ser enviado o `sessao_id` retornado pela API, junto com a mensagem do usuário.
+
+Exemplo de continuação:
+
+```json
+{
+  "sessao_id": "ID_DA_SESSAO_RETORNADO_PELA_API",
+  "mensagem": "-23.5505"
+}
+```
+
+O chatbot identifica a etapa atual e solicita as informações necessárias até concluir a análise.
 
 ## Estrutura do projeto
 
@@ -197,6 +206,7 @@ O agrupamento geográfico também não identifica hotspots reais, pois utiliza c
 - REST API
 - Gunicorn
 - Render
+- Git e GitHub
 
 ## Instalação e execução local
 
@@ -224,10 +234,16 @@ No Windows:
 .venv\Scripts\activate
 ```
 
-### 3. Instalar as dependências
+### 3. Instalar as dependências da API
 
 ```bash
 python -m pip install -r requirements.txt
+```
+
+Para executar os notebooks e utilizar as ferramentas de análise, instale também:
+
+```bash
+python -m pip install matplotlib seaborn jupyter ipykernel
 ```
 
 ### 4. Gerar a base de dados
@@ -238,7 +254,7 @@ python scripts/gerar_dados_sinteticos.py
 
 ### 5. Executar os notebooks
 
-Abra os arquivos da pasta `notebooks` e execute as células em ordem, caso queira reproduzir a análise e o treinamento dos modelos.
+Abra os arquivos da pasta `notebooks` e execute as células em ordem, caso queira reproduzir a análise exploratória e o treinamento dos modelos.
 
 Os arquivos `.joblib` exportados devem estar disponíveis na pasta `modelos` para a execução da API.
 
@@ -284,7 +300,7 @@ gunicorn --workers 1 --threads 4 --bind 0.0.0.0:$PORT --timeout 120 api.app:app
 
 https://rotalivre-ia-api.onrender.com
 
-A publicação permite que os endpoints sejam acessados externamente e utilizados na integração com o Front-end RotaLivre.
+A publicação permite que os endpoints sejam acessados externamente e utilizados em possíveis integrações com os demais componentes do projeto RotaLivre.
 
 ## Repositório
 
