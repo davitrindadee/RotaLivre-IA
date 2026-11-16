@@ -1,6 +1,6 @@
 # RotaLivre — Inteligência Artificial e Chatbot
 
-Projeto desenvolvido para a Global Solution FIAP 2026/2, com foco em mobilidade urbana e acessibilidade.
+Projeto desenvolvido para a **Global Solution FIAP 2026/2**, com foco em mobilidade urbana e acessibilidade.
 
 A solução utiliza técnicas de Inteligência Artificial para analisar características de acessibilidade de locais urbanos e explorar sua distribuição geográfica. Também disponibiliza uma API Flask com endpoints para consulta dos modelos e interação com o Chatbot RotaLivre.
 
@@ -60,13 +60,19 @@ Foram avaliadas diferentes quantidades de clusters utilizando:
 - Coeficiente Silhouette.
 - Visualização dos grupos e centros aproximados.
 
-A configuração experimental selecionada foi de 3 clusters, com coeficiente Silhouette de aproximadamente 0,8197.
+A configuração experimental selecionada foi de **3 clusters**, com coeficiente Silhouette de aproximadamente **0,8197**.
 
 Os agrupamentos são experimentais e não representam hotspots reais, pois a base utilizada é sintética.
 
 ## API Flask
 
 A API disponibiliza os modelos e o chatbot por meio de endpoints REST.
+
+### URL pública
+
+**API publicada no Render:**
+
+https://rotalivre-ia-api.onrender.com
 
 ### Endpoints
 
@@ -78,6 +84,13 @@ A API disponibiliza os modelos e o chatbot por meio de endpoints REST.
 | POST | `/api/classificar` | Classificação de acessibilidade |
 | POST | `/api/agrupar` | Agrupamento geográfico |
 | POST | `/api/chatbot` | Interação com o chatbot |
+
+### Verificação da API
+
+Os seguintes endereços podem ser utilizados para verificar a disponibilidade da aplicação:
+
+- [Status da API](https://rotalivre-ia-api.onrender.com/health)
+- [Modelos disponíveis](https://rotalivre-ia-api.onrender.com/api/modelos)
 
 ### Exemplos de requisições
 
@@ -120,7 +133,10 @@ A API disponibiliza os modelos e o chatbot por meio de endpoints REST.
 }
 ```
 
-O chatbot pode conduzir uma conversa interativa, solicitando latitude e longitude para executar o agrupamento ou coletando as informações necessárias para a classificação.
+O chatbot pode conduzir conversas interativas em dois fluxos:
+
+- **Classificação:** coleta as nove características necessárias para executar o Random Forest.
+- **Agrupamento:** solicita latitude e longitude para executar o KMeans.
 
 Nas etapas seguintes de uma conversa, deve ser enviado o `sessao_id` retornado pela API, junto com a mensagem do usuário.
 
@@ -179,13 +195,15 @@ O agrupamento geográfico também não identifica hotspots reais, pois utiliza c
 - Flask
 - Joblib
 - REST API
+- Gunicorn
+- Render
 
 ## Instalação e execução local
 
 ### 1. Clonar o repositório
 
 ```bash
-git clone URL_DO_REPOSITORIO
+git clone https://github.com/davitrindadee/RotaLivre-IA.git
 ```
 
 Acesse a pasta do projeto:
@@ -246,11 +264,33 @@ http://127.0.0.1:5000/health
 
 ## Publicação da API
 
-A API pode ser publicada em uma plataforma de hospedagem compatível com aplicações Python, como o Render.
+A aplicação foi publicada utilizando a plataforma Render, conectada ao repositório GitHub.
 
-Após a publicação, os endpoints poderão ser acessados por uma URL pública, permitindo a integração com o Front-end RotaLivre.
+**Configurações de publicação:**
 
-**URL pública da API:** A preencher após a publicação.
+Build Command:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start Command:
+
+```bash
+gunicorn --workers 1 --threads 4 --bind 0.0.0.0:$PORT --timeout 120 api.app:app
+```
+
+**URL pública:**
+
+https://rotalivre-ia-api.onrender.com
+
+A publicação permite que os endpoints sejam acessados externamente e utilizados na integração com o Front-end RotaLivre.
+
+## Repositório
+
+Código-fonte da solução:
+
+https://github.com/davitrindadee/RotaLivre-IA
 
 ## Integrantes
 
