@@ -1,0 +1,30 @@
+{
+    "nome": "Modelo de Classificacao RotaLivre",
+    "algoritmo": "RandomForestClassifier",
+    "variavel_alvo": "situacao_acessibilidade",
+    "variaveis_entrada": [
+        "tipo_local",
+        "largura_calcada_m",
+        "inclinacao_graus",
+        "rampa",
+        "piso_tatil",
+        "piso_regular",
+        "sinalizacao_acessivel",
+        "quantidade_relatos",
+        "usuarios_distintos"
+    ],
+    "classes": [
+        "ACESSIVEL",
+        "INACESSIVEL",
+        "PARCIAL"
+    ],
+    "quantidade_registros": 600,
+    "origem_dados": "SINTETICO_SIMULADO",
+    "metricas": {
+        "acuracia": 0.8083333333333333,
+        "precisao_macro": 0.7796717171717171,
+        "recall_macro": 0.8249905585882514,
+        "f1_macro": 0.7990446667056599
+    },
+    "observacao": "Resultados experimentais obtidos com dados sintéticos. Nao representam validacao de acessibilidade em locais reais."
+}

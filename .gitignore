@@ -1,0 +1,22 @@
+# Ambientes virtuais
+.venv/
+.venv-1/
+venv/
+env/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Arquivos temporários de notebooks
+.ipynb_checkpoints/
+
+# Configurações locais
+.env
+
+# Configurações do VS Code
+.vscode/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db

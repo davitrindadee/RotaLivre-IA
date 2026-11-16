@@ -1,0 +1,14 @@
+{
+    "nome": "Modelo de Agrupamento RotaLivre",
+    "algoritmo": "KMeans",
+    "variaveis": [
+        "latitude",
+        "longitude"
+    ],
+    "quantidade_clusters": 3,
+    "inercia": 216.4448875731464,
+    "silhouette_score": 0.8197148240962154,
+    "quantidade_registros": 600,
+    "origem_dados": "SINTETICO_SIMULADO",
+    "observacao": "Agrupamentos experimentais com coordenadas sintéticas. Nao representam hotspots reais."
+}
