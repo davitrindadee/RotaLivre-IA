@@ -4,6 +4,8 @@ Projeto desenvolvido para a **Global Solution FIAP 2026/2**, com foco em mobilid
 
 A solução utiliza técnicas de Inteligência Artificial para analisar características de acessibilidade de locais urbanos e explorar sua distribuição geográfica. Também disponibiliza uma API Flask com endpoints para consulta dos modelos e interação com o Chatbot RotaLivre.
 
+**Turma:** 1TDSPW
+
 ## Objetivo
 
 Desenvolver uma solução experimental baseada em Inteligência Artificial para:
@@ -177,19 +179,22 @@ RotaLivre-IA/
 │   └── gerar_dados_sinteticos.py
 │
 ├── requirements.txt
+├── integrantes.txt
 ├── README.md
 └── .gitignore
 ```
 
 ## Origem e limitações dos dados
 
-A base utilizada nesta versão do projeto contém 600 registros sintéticos, gerados por um script Python.
+A base utilizada nos experimentos de Inteligência Artificial contém **600 registros sintéticos**, gerados por meio de um script Python.
+
+O banco de dados entregue no projeto contém **60 registros**. Portanto, é importante diferenciar os registros do conjunto de dados utilizado nos experimentos dos registros armazenados no banco.
 
 Os registros simulados não representam locais reais nem medições oficiais de acessibilidade urbana.
 
 As métricas dos modelos avaliam o comportamento experimental sobre essa base e não comprovam seu desempenho em ambientes reais.
 
-A classificação atual não implementa integralmente a regra oficial de avaliação baseada na média ponderada dos relatos dos últimos 30 dias e na confirmação por pelo menos três usuários distintos.
+A classificação atual não implementa integralmente a proposta do grupo de avaliação baseada na média ponderada dos relatos dos últimos 30 dias e na confirmação por pelo menos três usuários distintos. Essa regra é uma proposta do grupo e não deve ser apresentada como uma regra oficial já implementada.
 
 O agrupamento geográfico também não identifica hotspots reais, pois utiliza coordenadas simuladas.
 
@@ -310,7 +315,13 @@ https://github.com/davitrindadee/RotaLivre-IA
 
 ## Integrantes
 
-Projeto desenvolvido para a Global Solution FIAP 2026/2.
+Projeto desenvolvido para a Global Solution FIAP 2026/2, turma 1TDSPW.
+
+- Rodrigo Banharelli de Souza — RM 570539
+- Nycolas Melo Escobar — RM 573052
+- Gabriel Augusto Ribeiro — RM 573120
+- Tayna Jimenes Silva — RM 569337
+- Davi Trindade Ribeiro — RM 571336
 
 ## Considerações finais
 
