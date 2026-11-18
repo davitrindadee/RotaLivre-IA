@@ -1,7 +1,11 @@
-INTEGRANTES — GLOBAL SOLUTION ROTAlIVRE
+INTEGRANTES — GLOBAL SOLUTION ROTALIVRE
 
-Rodrigo Banharelli de Souza — RM 570539
-Nycolas Melo Escobar — RM 573052
-Gabriel Augusto — RM 573120
-Tayna Jimenes Silva — RM 569337
-Davi Trindade Ribeiro — RM 571336
+Turma: 1TDSPW
+
+Rodrigo Banharelli de Souza — RM 570539 — Turma 1TDSPW
+Nycolas Melo Escobar — RM 573052 — Turma 1TDSPW
+Gabriel Augusto Ribeiro — RM 573120 — Turma 1TDSPW
+Tayna Jimenes Silva — RM 569337 — Turma 1TDSPW
+Davi Trindade Ribeiro — RM 571336 — Turma 1TDSPW
+
+Observação: a base de dados utilizada nos experimentos é sintética, contendo 600 registros gerados pelo script Python. O banco de dados possui 60 registros.
