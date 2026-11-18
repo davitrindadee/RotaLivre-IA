@@ -53,7 +53,8 @@ def processar_mensagem(mensagem: str) -> dict[str, str]:
     Identifica a intenção da mensagem e prepara uma resposta.
 
     O chatbot utiliza regras e respostas previamente definidas.
-    A consulta aos modelos é realizada pela API Flask.
+    A consulta aos modelos e o controle das sessões são realizados
+    pela API Flask.
     """
 
     if not isinstance(mensagem, str) or not mensagem.strip():
@@ -99,23 +100,34 @@ def processar_mensagem(mensagem: str) -> dict[str, str]:
         "prever acessibilidade",
         "quero classificar",
         "quero uma classificacao",
-        "fazer uma classificacao"
+        "fazer uma classificacao",
+        "iniciar classificacao"
     ]):
         return {
             "sucesso": True,
             "intencao": "solicitar_classificacao",
             "resposta": (
-                "Posso ajudar com uma classificação experimental! "
-                "O modelo Random Forest precisa das informações do local: "
-                "tipo de local, largura da calçada, inclinação, presença "
-                "de rampa, piso tátil, piso regular, sinalização acessível, "
-                "quantidade de relatos e usuários distintos. "
-                "Esses dados podem ser enviados à API no campo dados_local."
+                "Vamos iniciar a classificação experimental! "
+                "Vou solicitar as informações do local, uma etapa por vez."
             )
         }
 
     # Identifica pedidos de agrupamento geográfico.
     if contem_termo(texto, [
+        "quero fazer um agrupamento geografico",
+        "quero fazer agrupamento geografico",
+        "quero um agrupamento geografico",
+        "quero agrupamento geografico",
+        "quero agrupar locais",
+        "quero agrupar coordenadas",
+        "quero agrupar",
+        "fazer agrupamento geografico",
+        "fazer agrupamento",
+        "iniciar agrupamento",
+        "iniciar agrupamento geografico",
+        "agrupar locais",
+        "agrupar coordenadas",
+        "agrupar pontos geograficos",
         "analisar coordenadas",
         "identifique a regiao",
         "identificar regiao",
@@ -123,17 +135,14 @@ def processar_mensagem(mensagem: str) -> dict[str, str]:
         "qual e o cluster",
         "localizar cluster",
         "consultar cluster",
-        "agrupar coordenadas",
-        "identificar agrupamento",
         "analisar regiao geografica"
     ]):
         return {
             "sucesso": True,
             "intencao": "solicitar_agrupamento",
             "resposta": (
-                "Posso consultar o agrupamento geográfico experimental! "
-                "Preciso das coordenadas do local: latitude e longitude. "
-                "Elas podem ser enviadas à API no campo coordenadas."
+                "Vamos iniciar o agrupamento geográfico experimental! "
+                "Vou solicitar a latitude e a longitude do local."
             )
         }
 
