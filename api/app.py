@@ -1,6 +1,9 @@
+
 from pathlib import Path
 import math
 import uuid
+import unicodedata
+import time
 
 import joblib
 import pandas as pd
@@ -48,9 +51,39 @@ CAMPOS_BOOLEANOS = [
     "sinalizacao_acessivel"
 ]
 
+# Tipos de locais utilizados pelo modelo.
+TIPOS_LOCAIS_VALIDOS = {
+    "CALCADA",
+    "RAMPA",
+    "ELEVADOR",
+    "ESTABELECIMENTO",
+    "OBSTACULO"
+}
+
 # Armazena temporariamente as conversas dos usuarios.
 # Cada sessao possui sua propria intencao, etapa e dados.
 sessoes_chatbot = {}
+
+# Tempo maximo de inatividade de uma sessao: 30 minutos.
+TEMPO_EXPIRACAO_SESSAO = 30 * 60
+
+
+# Remove sessoes que ultrapassaram o tempo de inatividade.
+def limpar_sessoes_expiradas():
+    agora = time.monotonic()
+
+    sessoes_expiradas = [
+        sessao_id
+        for sessao_id, sessao in sessoes_chatbot.items()
+        if agora - sessao.get("ultima_atividade", agora)
+        >= TEMPO_EXPIRACAO_SESSAO
+    ]
+
+    for sessao_id in sessoes_expiradas:
+        del sessoes_chatbot[sessao_id]
+
+    return sessoes_expiradas
+
 
 # Perguntas utilizadas na classificacao com Random Forest.
 PERGUNTAS_CLASSIFICACAO = [
@@ -111,6 +144,21 @@ PERGUNTAS_AGRUPAMENTO = [
 ]
 
 
+# Normaliza o tipo de local recebido.
+def normalizar_tipo_local(tipo_local):
+    if not isinstance(tipo_local, str):
+        return None
+
+    tipo = unicodedata.normalize("NFKD", tipo_local.strip())
+    tipo = "".join(
+        caractere
+        for caractere in tipo
+        if not unicodedata.combining(caractere)
+    )
+
+    return tipo.upper()
+
+
 # Carrega os dois modelos utilizados pela API.
 def carregar_modelos():
     if not ARQUIVO_CLASSIFICACAO.exists():
@@ -164,13 +212,18 @@ def validar_dados_classificacao(dados):
             f"Campos ausentes: {', '.join(campos_ausentes)}"
         )
 
-    if (
-        not isinstance(dados["tipo_local"], str)
-        or not dados["tipo_local"].strip()
-    ):
-        return None, "Informe um tipo de local valido."
+    tipo_local = normalizar_tipo_local(dados["tipo_local"])
+
+    if tipo_local not in TIPOS_LOCAIS_VALIDOS:
+        tipos = ", ".join(sorted(TIPOS_LOCAIS_VALIDOS))
+
+        return None, (
+            "Tipo de local invalido. "
+            f"Informe um dos seguintes tipos: {tipos}."
+        )
 
     entrada = dados.copy()
+    entrada["tipo_local"] = tipo_local
 
     for campo in CAMPOS_BOOLEANOS:
         if not isinstance(entrada[campo], bool):
@@ -200,6 +253,12 @@ def validar_dados_classificacao(dados):
         or entrada["usuarios_distintos"] < 0
     ):
         return None, "As quantidades nao podem ser negativas."
+
+    if entrada["usuarios_distintos"] > entrada["quantidade_relatos"]:
+        return None, (
+            "A quantidade de usuarios distintos nao pode ser "
+            "maior que a quantidade de relatos."
+        )
 
     return entrada, None
 
@@ -314,10 +373,17 @@ def interpretar_resposta(campo, mensagem):
     mensagem = mensagem.strip()
 
     if campo == "tipo_local":
-        if not mensagem:
-            return None, "Informe o tipo de local."
+        tipo_local = normalizar_tipo_local(mensagem)
 
-        return mensagem.lower(), None
+        if tipo_local not in TIPOS_LOCAIS_VALIDOS:
+            tipos = ", ".join(sorted(TIPOS_LOCAIS_VALIDOS))
+
+            return None, (
+                "Tipo de local invalido. "
+                f"Informe um dos seguintes tipos: {tipos}."
+            )
+
+        return tipo_local, None
 
     if campo in CAMPOS_BOOLEANOS:
         valor = interpretar_booleano(mensagem)
@@ -368,7 +434,8 @@ def iniciar_classificacao():
     sessoes_chatbot[sessao_id] = {
         "intencao": "solicitar_classificacao",
         "etapa": 0,
-        "dados": {}
+        "dados": {},
+        "ultima_atividade": time.monotonic()
     }
 
     return sessao_id
@@ -381,7 +448,8 @@ def iniciar_agrupamento():
     sessoes_chatbot[sessao_id] = {
         "intencao": "solicitar_agrupamento",
         "etapa": 0,
-        "dados": {}
+        "dados": {},
+        "ultima_atividade": time.monotonic()
     }
 
     return sessao_id
@@ -469,7 +537,7 @@ def continuar_classificacao(sessao_id, mensagem):
             )
         },
         "resposta": (
-            f"Conclui a analise experimental!\n\n"
+            "Conclui a analise experimental!\n\n"
             f"Situacao de acessibilidade prevista: {previsao}.\n\n"
             "Lembre-se: o resultado utiliza dados sinteticos e "
             "nao substitui uma avaliacao presencial."
@@ -564,10 +632,10 @@ def continuar_agrupamento(sessao_id, mensagem):
         "resposta": (
             "Conclui a analise geografica experimental!\n\n"
             f"O local foi associado ao cluster {resultado['cluster']}.\n\n"
-            f"Centro aproximado: "
+            "Centro aproximado: "
             f"latitude {resultado['centro_aproximado']['latitude']} e "
             f"longitude {resultado['centro_aproximado']['longitude']}.\n\n"
-            f"Distancia ate o centro do grupo: "
+            "Distancia ate o centro do grupo: "
             f"{resultado['distancia_ate_centro_km']} km.\n\n"
             "Lembre-se: o agrupamento utiliza dados sinteticos "
             "e nao representa um hotspot real."
@@ -704,16 +772,34 @@ def chatbot():
 
     mensagem = mensagem.strip()
 
+    # Remove sessoes que ultrapassaram 30 minutos de inatividade.
+    sessoes_expiradas = limpar_sessoes_expiradas()
+
     # Continua uma conversa que ja possui uma sessao ativa.
     if sessao_id is not None:
-        if (
-            not isinstance(sessao_id, str)
-            or sessao_id not in sessoes_chatbot
-        ):
+        if not isinstance(sessao_id, str):
+            return jsonify({
+                "sucesso": False,
+                "erro": "Identificador de sessao invalido."
+            }), 400
+
+        if sessao_id in sessoes_expiradas:
+            return jsonify({
+                "sucesso": False,
+                "erro": (
+                    "Sua sessao expirou por inatividade. "
+                    "Inicie uma nova conversa."
+                )
+            }), 410
+
+        if sessao_id not in sessoes_chatbot:
             return jsonify({
                 "sucesso": False,
                 "erro": "Sessao nao encontrada. Inicie uma nova conversa."
             }), 404
+
+        # Atualiza o horario da ultima atividade.
+        sessoes_chatbot[sessao_id]["ultima_atividade"] = time.monotonic()
 
         resultado_conversa = continuar_conversa(
             sessao_id,
@@ -775,7 +861,7 @@ def chatbot():
                 )
             },
             "resposta": (
-                f"O local foi associado ao cluster "
+                "O local foi associado ao cluster "
                 f"{resultado_cluster['cluster']} no agrupamento experimental."
             )
         })
@@ -812,11 +898,20 @@ def chatbot():
     return jsonify(resposta)
 
 
+# Retorna erros 404 em formato JSON.
 @app.errorhandler(404)
 def rota_nao_encontrada(erro):
     return jsonify({
         "erro": "Endpoint nao encontrado."
     }), 404
+
+
+# Retorna erros 405 em formato JSON.
+@app.errorhandler(405)
+def metodo_nao_permitido(erro):
+    return jsonify({
+        "erro": "Metodo HTTP nao permitido para esta rota."
+    }), 405
 
 
 if __name__ == "__main__":
